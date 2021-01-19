@@ -26,7 +26,6 @@ Route::middleware("auth:api")->group(function(){
     //Walls
     Route::get("/walls", [WallController::class, "getAll"]);
     Route::post("/wall/{id}/like", [WallController::class, "like"]);
-    Route::post("/wall/{id}/like", [WallController::class, "like"]);
     //Docs
     Route::get("/docs", [DocController::class, "getAll()"]);
     //Warnings
