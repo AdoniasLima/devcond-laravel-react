@@ -89,6 +89,7 @@ class Createalltables extends Migration
             $table->string("status")->default("LOST"); // LOST, RECOVERED
             $table->string("photo");
             $table->string("description");
+            $table->string("location");
             $table->date("datecreated");
         });
 
