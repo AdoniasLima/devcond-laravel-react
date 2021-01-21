@@ -248,4 +248,51 @@ class ReservationController extends Controller
 
         return response()->json($response);
     }
+
+    public function getMyReservations(Request $request){
+        $response = ["error" => ""];
+        $property = $request->input("property");
+        if($property){
+            $unit = Unit::find($property);
+            if($unit){
+                $reservations = Reservation::where("id_unit", $property)->orderBy("reservation_date")->get();
+                foreach ($reservations as $reservation) {
+                    $area = Area::find($reservation["id_area"]);
+                    $daterev = date("d/m/Y H:i", strtotime($reservation["reservation_date"]));
+                    $afterTime = date("H:i", strtotime("+1 hour", strtotime($reservation["reservation_date"])));
+                    $daterev .= " - " . $afterTime;
+                    $response["list"][] = [
+                        "id" => $reservation["id"],
+                        "id_area" => $reservation["id_area"],
+                        "title" => $area["title"],
+                        "cover" => asset("storage/".$area["cover"]),
+                        "datereserved" => $daterev
+                    ];
+                }
+            } else {
+                $response["error"] = "Property not found.";
+            }
+        } else {
+            $response["error"] = "Property is required.";
+        }
+        return response()->json($response);
+    }
+
+    public function removeReservation($id){
+        $response = ["error" => ""];
+        $user = auth()->user();
+        $reservation = Reservation::find($id);
+        if($reservation){
+            $unit = Unit::where("id", $reservation["id_unit"])->where("id_owner", $user["id"])->count();
+            if($unit > 0){
+                Reservation::find($id)->delete();
+            } else {
+                $response["error"] = "This reservation is not yours.";
+            }
+        } else {
+            $response["error"] = "Reservation already exists."; 
+        }
+
+        return response()->json($response);
+    }
 }
